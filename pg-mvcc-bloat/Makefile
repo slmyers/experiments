@@ -149,6 +149,58 @@ stats: ## Show current table statistics
 psql: ## Open psql shell
 	PGPASSWORD=$(PGPASSWORD) psql -h $(PGHOST) -p $(PGPORT) -U $(PGUSER) -d $(PGDATABASE)
 
+# Backup and Restore targets
+
+backup-db: ## Create a full database backup using pg_dump
+	@echo "Creating database backup..."
+	cd $(SCRIPTS_DIR) && $(PYTHON) -m backup.backup_db
+
+backup-db-named: ## Create a named database backup (NAME=mybackup)
+ifndef NAME
+	$(error NAME is required. Usage: make backup-db-named NAME=<backup_name>)
+endif
+	@echo "Creating database backup: $(NAME)"
+	cd $(SCRIPTS_DIR) && $(PYTHON) -m backup.backup_db --name $(NAME)
+
+restore-db: ## Restore database from backup (BACKUP=path/to/backup.dump)
+ifndef BACKUP
+	$(error BACKUP is required. Usage: make restore-db BACKUP=<backup_file>)
+endif
+	@echo "Restoring database from: $(BACKUP)"
+	cd $(SCRIPTS_DIR) && $(PYTHON) -m backup.restore_db $(BACKUP)
+
+restore-db-clean: ## Restore database with clean (drops objects first) (BACKUP=path/to/backup.dump)
+ifndef BACKUP
+	$(error BACKUP is required. Usage: make restore-db-clean BACKUP=<backup_file>)
+endif
+	@echo "Restoring database (with clean) from: $(BACKUP)"
+	cd $(SCRIPTS_DIR) && $(PYTHON) -m backup.restore_db $(BACKUP) --clean
+
+backup-volume: ## Create a Docker volume snapshot
+	@echo "Creating Docker volume snapshot..."
+	cd $(SCRIPTS_DIR) && $(PYTHON) -m backup.backup_volume
+
+backup-volume-named: ## Create a named volume snapshot (NAME=mybackup)
+ifndef NAME
+	$(error NAME is required. Usage: make backup-volume-named NAME=<backup_name>)
+endif
+	@echo "Creating volume snapshot: $(NAME)"
+	cd $(SCRIPTS_DIR) && $(PYTHON) -m backup.backup_volume --name $(NAME)
+
+restore-volume: ## Restore Docker volume from snapshot (BACKUP=path/to/backup.tar.gz)
+ifndef BACKUP
+	$(error BACKUP is required. Usage: make restore-volume BACKUP=<backup_file>)
+endif
+	@echo "Restoring volume from: $(BACKUP)"
+	cd $(SCRIPTS_DIR) && $(PYTHON) -m backup.restore_volume $(BACKUP)
+
+list-backups: ## List all available backups
+	@echo "=== Database Backups ==="
+	@cd $(SCRIPTS_DIR) && $(PYTHON) -m backup.backup_db --list
+	@echo ""
+	@echo "=== Volume Backups ==="
+	@cd $(SCRIPTS_DIR) && $(PYTHON) -m backup.backup_volume --list
+
 # Cleanup targets
 
 clean: ## Full cleanup (stops containers, removes volumes and outputs)
