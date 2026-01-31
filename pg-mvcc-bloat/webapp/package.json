@@ -1,0 +1,22 @@
+{
+  "name": "pg-mvcc-visualizer",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Real-time visualization of PostgreSQL MVCC bloat behavior",
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "d3": "^7.8.5",
+    "recharts": "^2.10.3",
+    "axios": "^1.6.5"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.2.1",
+    "vite": "^5.0.10"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  }
+}
