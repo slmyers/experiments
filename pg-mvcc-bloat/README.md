@@ -73,6 +73,50 @@ make experiment PRESET=bloat-demo-short
 make report RUN=bloat-demo_20260125_143022  # Use your actual run ID
 ```
 
+## Backup and Restore
+
+The project provides two backup methods to avoid frequent re-seeding:
+
+### Database Backup (pg_dump)
+
+Fast, logical backup suitable for moving between environments:
+
+```bash
+# Create a backup
+make backup-db
+
+# Create a named backup
+make backup-db-named NAME=before-experiment
+
+# List available backups
+make list-backups
+
+# Restore from backup
+make restore-db BACKUP=backups/database/backup_20260131_120000.dump
+
+# Restore with clean (drops objects first)
+make restore-db-clean BACKUP=backups/database/backup_20260131_120000.dump
+```
+
+### Volume Snapshot
+
+Binary snapshot of the entire PostgreSQL data directory:
+
+```bash
+# Create a volume snapshot
+make backup-volume
+
+# Create a named snapshot
+make backup-volume-named NAME=seeded-1M-rows
+
+# Restore from snapshot (container must be stopped)
+make down
+make restore-volume BACKUP=backups/volume/volume_20260131_120000.tar.gz
+make infra
+```
+
+**Note:** Volume snapshots are larger but faster to restore and preserve the exact database state including statistics and WAL files.
+
 ### Clean Up
 
 ```bash
